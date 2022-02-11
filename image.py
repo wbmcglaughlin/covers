@@ -4,6 +4,7 @@ from PIL import Image, ImageDraw, ImageFont
 import base64
 import constant
 from color import get_rainbow_array
+from io import BytesIO
 
 
 def set_image(sp: spotipy.Spotify):
@@ -18,8 +19,15 @@ def set_image(sp: spotipy.Spotify):
         item_id = item["id"]
         color = tuple(color_array[idx])
         img = Image.new('RGB', (constant.png_px_size, constant.png_px_size), color=color)
-        img.save(f'./cover_art/{idx}.png')
-        encoded = base64.b64encode(open(f'./cover_art/{idx}.png', 'rb').read())
+
+        draw = ImageDraw.Draw(img)
+        font = ImageFont.truetype(constant.font_path, 64)
+        draw.text((20, 10), item["name"], (255, 253, 247), font=font)
+
+        buffered = BytesIO()
+        img.save(buffered, format="JPEG")
+
+        encoded = base64.b64encode(buffered.getvalue())
         sp.playlist_upload_cover_image(item_id, encoded)
         print(f"Playlist [ {item['name']} ] cover art changed with color"
               f" {color}")
