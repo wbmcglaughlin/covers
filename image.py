@@ -5,6 +5,7 @@ import base64
 import constant
 from color import get_rainbow_array
 from io import BytesIO
+from tqdm import tqdm
 
 
 def set_image(sp: spotipy.Spotify):
@@ -15,7 +16,7 @@ def set_image(sp: spotipy.Spotify):
     color_array = get_rainbow_array(playlist_count, 48, 209)
 
     # Iterate through playlists
-    for idx, item in enumerate(playlists["items"]):
+    for idx, item in tqdm(iterable=enumerate(playlists["items"])):
         item_id = item["id"]
         color = tuple(color_array[idx])
         img = Image.new('RGB', (constant.png_px_size, constant.png_px_size), color=color)
@@ -29,5 +30,3 @@ def set_image(sp: spotipy.Spotify):
 
         encoded = base64.b64encode(buffered.getvalue())
         sp.playlist_upload_cover_image(item_id, encoded)
-        print(f"Playlist [ {item['name']} ] cover art changed with color"
-              f" {color}")
