@@ -19,5 +19,5 @@ if __name__ == "__main__":
     except spotipy.SpotifyException as e:
         logging.log("Authentication Failed")
 
-    gui = Gui(sp, 500, 500)
+    gui = Gui(sp, 640, 640)
     gui.start()

@@ -2,7 +2,10 @@ from tkinter import *
 
 import spotipy
 from PIL import ImageTk
-from image import Image
+from PIL import Image, ImageDraw, ImageFont
+from cover import Cover
+from io import BytesIO
+import base64
 
 
 class Gui:
@@ -16,8 +19,16 @@ class Gui:
         self.canvas = Canvas(self.root, width=self.width, height=self.height)
         self.canvas.pack()
 
-        self.image = Image(sp)
+        self.cover = Cover(sp)
 
     def start(self):
-        img = self.image.get_image(0)
+        buff = self.cover.generate_image(0, 48, 209)
+        img = ImageTk.PhotoImage(Image.open(buff))
+
+        self.canvas.create_image(0, 0, anchor=NW, image=img)
+        self.cover.generate_images(48, 209)
+
+        button = Button(master=self.root, text="Apply Cover Arts", command=self.cover.set_image)
+        button.pack()
+
         self.root.mainloop()
