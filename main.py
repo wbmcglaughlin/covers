@@ -1,13 +1,10 @@
 import spotipy
 from spotipy.oauth2 import SpotifyOAuth
-from PIL import Image, ImageDraw, ImageFont
-import base64
 import logging
-from image import set_image
+from gui import Gui
 
 # Contains information for auth
 import secret
-
 
 if __name__ == "__main__":
     # Set scope
@@ -19,9 +16,8 @@ if __name__ == "__main__":
                                                        client_id=secret.client_id,
                                                        client_secret=secret.client_secret,
                                                        redirect_uri=secret.redirect_uri))
-    except:
+    except spotipy.SpotifyException as e:
         logging.log("Authentication Failed")
 
-    set_image(sp)
-
-
+    gui = Gui(sp, 500, 500)
+    gui.start()
