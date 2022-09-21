@@ -13,6 +13,7 @@ class Cover:
     def __init__(self, sp: spotipy.Spotify):
         self.sp = sp
         self.playlists = self.sp.current_user_playlists()["items"]
+        self.strings = self.get_string(0)
         self.playlists_count = len(self.playlists)
         self.images = None
         self.pad = 500
@@ -67,3 +68,15 @@ class Cover:
 
     def get_squares(self, count: int, size: int):
         pass
+
+    def get_string(self, idx: int):
+        playlist_items = self.sp.playlist_items(self.playlists[0]['id'])['items']
+        artists = []
+        track_names = []
+        for track in playlist_items:
+            artists.append(track['track']['artists'][0]['name'])
+            track_names.append(track['track']['name'])
+
+        string = ""
+        string += self.playlists[idx]["name"] + " " + str(max(set(artists), key=artists.count))
+
