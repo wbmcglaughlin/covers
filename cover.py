@@ -7,27 +7,27 @@ import constant
 from color import get_rainbow_array
 from io import BytesIO
 from tqdm import tqdm
+from diffusion import get_diffusion_image
 
 
 class Cover:
     def __init__(self, sp: spotipy.Spotify):
         self.sp = sp
         self.playlists = self.sp.current_user_playlists()["items"]
-        self.strings = self.get_string(0)
         self.playlists_count = len(self.playlists)
         self.images = None
         self.pad = 500
 
     def generate_image(self, idx: int, low_color: int, high_color: int):
-        color_array = get_rainbow_array(self.playlists_count, low_color, high_color)
-        color = tuple(color_array[idx])
-        img = Image.new('RGB', (constant.png_px_size, constant.png_px_size), color=color)
+        # color_array = get_rainbow_array(self.playlists_count, low_color, high_color)
+        # color = tuple(color_array[idx])
 
-        draw = ImageDraw.Draw(img)
-        # draw.rectangle((10, 10, 20, 20), fill=(0, 0, 0))
+        diffusion_image = get_diffusion_image(self.get_string(idx))
 
-        font_large = ImageFont.truetype(constant.font_path, 64)
-        font_small = ImageFont.truetype(constant.font_path, 30)
+        draw = ImageDraw.Draw(diffusion_image)
+
+        font_large = ImageFont.truetype(constant.font_path, 48)
+        font_small = ImageFont.truetype(constant.font_path, 24)
 
         draw.text((20, 0), self.playlists[idx]["name"], (255, 255, 255), font=font_large)
         draw.text((20, font_large.size + self.pad), f"Playlist: {idx + 1}/{self.playlists_count}", (255, 255, 255),
@@ -36,7 +36,7 @@ class Cover:
                   f"Tracks: {self.playlists[idx]['tracks']['total']}", font=font_small)
 
         buffered = BytesIO()
-        img.save(buffered, format="JPEG")
+        diffusion_image.save(buffered, format="JPEG")
 
         return buffered
 
@@ -80,3 +80,4 @@ class Cover:
         string = ""
         string += self.playlists[idx]["name"] + " " + str(max(set(artists), key=artists.count))
 
+        return string
