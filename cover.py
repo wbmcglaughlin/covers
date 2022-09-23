@@ -15,10 +15,7 @@ class Cover:
         self.images = None
         self.pad = 500
 
-    def generate_image(self, idx: int, low_color: int, high_color: int):
-        # color_array = get_rainbow_array(self.playlists_count, low_color, high_color)
-        # color = tuple(color_array[idx])
-
+    def generate_image(self, idx: int):
         diffusion_image = get_diffusion_image(self.get_string(idx))
 
         draw = ImageDraw.Draw(diffusion_image)
@@ -67,7 +64,7 @@ class Cover:
         pass
 
     def get_string(self, idx: int):
-        playlist_items = self.sp.playlist_items(self.playlists[0]['id'])['items']
+        playlist_items = self.sp.playlist_items(self.playlists[idx]['id'])['items']
         artists = []
         track_names = []
         for track in playlist_items:
@@ -75,6 +72,7 @@ class Cover:
             track_names.append(track['track']['name'])
 
         string = ""
-        string += self.playlists[idx]["name"] + " " + str(max(set(artists), key=artists.count))
+        string += str(max(set(artists), key=artists.count)) + " " + self.playlists[idx]["name"]
+        print(string)
 
         return string
