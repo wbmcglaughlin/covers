@@ -1,6 +1,8 @@
+import os.path
 from tkinter import *
 
 import spotipy
+import urllib.request
 from PIL import ImageTk
 from PIL import Image, ImageDraw, ImageFont
 from cover import Cover
@@ -10,24 +12,29 @@ import base64
 
 class Gui:
     def __init__(self, sp: spotipy.Spotify, width: int, height: int):
+        if not os.path.exists("./Covers"):
+            os.mkdir("./Covers")
+
         self.root = Tk()
         self.root.resizable(False, False)
 
         self.width = width
         self.height = height
 
-        self.canvas = Canvas(self.root, width=self.width, height=self.height)
+        self.canvas = Canvas(self.root, width=self.width, height=self.height, background='#0D0D0D')
         self.canvas.pack(fill='both', expand=1)
 
+        self.sp = sp
         self.cover = Cover(sp)
         self.index_val = 0
         self.index = StringVar()
 
     def start(self):
-        buff = self.cover.generate_image(0, 48, 209)
-        img = ImageTk.PhotoImage(Image.open(buff))
+        spotify_cover_image = self.sp.playlist_cover_image(self.sp.current_user_playlists()["items"][0]["id"])[0]['url']
+        urllib.request.urlretrieve(spotify_cover_image, f'./Covers/cover_{0}.png')
 
-        self.canvas.create_image(0, 0, anchor=NW, image=img)
+        img = ImageTk.PhotoImage(Image.open(f'./Covers/cover_{0}.png'))
+        self.canvas.create_image(self.width / 2, self.height / 2, image=img)
 
         left_button = Button(master=self.root, text="<<", command=self.decrement_index)
         left_button.pack()

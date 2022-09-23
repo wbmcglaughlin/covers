@@ -1,10 +1,7 @@
-from pprint import pprint
-
 import spotipy
 from PIL import Image, ImageDraw, ImageFont
 import base64
 import constant
-from color import get_rainbow_array
 from io import BytesIO
 from tqdm import tqdm
 from diffusion import get_diffusion_image
