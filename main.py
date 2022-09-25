@@ -1,3 +1,5 @@
+import os.path
+
 import spotipy
 from spotipy.oauth2 import SpotifyOAuth
 import logging
@@ -7,6 +9,11 @@ from gui import Gui
 import secret
 
 if __name__ == "__main__":
+    if os.path.exists("./Covers"):
+        for pth in os.listdir("./Covers"):
+            if pth[-3:] == "png":
+                os.remove("./Covers/" + pth)
+
     # Set scope
     scope = "user-library-read playlist-modify-public ugc-image-upload"
 
@@ -16,7 +23,7 @@ if __name__ == "__main__":
                                                        client_id=secret.client_id,
                                                        client_secret=secret.client_secret,
                                                        redirect_uri=secret.redirect_uri))
-        gui = Gui(sp, 720, 720)
+        gui = Gui(sp, 420, 420)
         gui.start()
 
     except spotipy.SpotifyException as e:
