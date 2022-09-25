@@ -2,9 +2,6 @@ import spotipy
 from spotipy.oauth2 import SpotifyOAuth
 import logging
 from gui import Gui
-from huggingface_hub import notebook_login
-import torch
-import constant
 
 # Contains information for auth
 import secret
@@ -19,8 +16,10 @@ if __name__ == "__main__":
                                                        client_id=secret.client_id,
                                                        client_secret=secret.client_secret,
                                                        redirect_uri=secret.redirect_uri))
+        gui = Gui(sp, 720, 720)
+        gui.start()
+
     except spotipy.SpotifyException as e:
         logging.log("Authentication Failed")
 
-    gui = Gui(sp, 720, 720)
-    gui.start()
+
