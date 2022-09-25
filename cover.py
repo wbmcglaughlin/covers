@@ -15,8 +15,8 @@ class Cover:
         self.images = None
         self.pad = 500
 
-    def generate_image(self, idx: int):
-        diffusion_image = get_diffusion_image(self.get_string(idx))
+    def generate_image(self, string: str, idx: int):
+        diffusion_image = get_diffusion_image(string)
 
         draw = ImageDraw.Draw(diffusion_image)
 
@@ -33,17 +33,6 @@ class Cover:
         diffusion_image.save(buffered, format="JPEG")
 
         return buffered
-
-    def generate_images(self, low_color: int, high_color: int):
-        array = []
-
-        # Iterate through playlists
-        for idx, item in tqdm(iterable=enumerate(self.playlists)):
-            array.append(self.generate_image(idx))
-
-        self.images = array
-
-        return array
 
     def set_image(self):
         array = self.images
