@@ -5,9 +5,8 @@ from tkinter import *
 import spotipy
 import urllib.request
 from PIL import ImageTk
-from PIL import Image, ImageDraw, ImageFont
+from PIL import Image
 from cover import Cover
-from io import BytesIO
 import base64
 
 COVER_FILE_PATH = "./Covers"
@@ -19,6 +18,8 @@ class Gui:
             os.mkdir(COVER_FILE_PATH)
 
         self.root = Tk()
+        self.sp = sp
+        self.cover = Cover(sp)
 
         self.width = width
         self.height = height
@@ -27,16 +28,30 @@ class Gui:
         self.canvas = Frame(self.root)
 
         self.current_cover = None
-        self.playlist_string_text = Text(master=self.root)
+        self.input_canvas = Frame(self.root)
+        self.input_canvas.grid(row=0, column=1)
 
-        self.sp = sp
-        self.cover = Cover(sp)
+        playlist_gen_string_text = Label(master=self.input_canvas, text="Playlist Generator Input String")
+        playlist_gen_string_text.grid(row=2, column=0)
+        self.playlist_string_text = Text(master=self.input_canvas)
+        self.playlist_string_text.grid(row=3)
+
+        options = self.get_playlist_titles()
+        self.playlist_selection_name = StringVar(self.input_canvas)
+        self.playlist_selection_name.set(options[0])  # default value
+        self.playlist_selection_name.trace_variable("w", self.change_to_playlist)
+        playlist_choice_string_text = Label(master=self.input_canvas, text="Playlist Selection")
+        playlist_choice_string_text.grid(row=0, column=0)
+        self.dropdown = OptionMenu(self.input_canvas, self.playlist_selection_name, *options)
+        self.dropdown.grid(row=1)
+
         self.index_val = 0
         self.index = StringVar()
 
     def start(self):
         self.get_current_playlist_cover()
 
+        # Menu Button Selection Options
         left_button = Button(master=self.canvas, text="<<", command=self.decrement_index)
         left_button.grid(row=0, column=0)
 
@@ -49,9 +64,8 @@ class Gui:
         right_button = Button(master=self.canvas, text=">>", command=self.increment_index)
         right_button.grid(row=0, column=3)
 
-        self.playlist_string_text.grid(row=0, column=1, sticky='news')
-
         text = Label(self.root, textvariable=self.index)
+        text.grid(row=0, column=4)
 
         self.canvas.grid(row=1, column=1)
         self.root.mainloop()
@@ -65,10 +79,18 @@ class Gui:
         img_pil = Image.open(f'{COVER_FILE_PATH}/cover_{self.index_val}.png')
         img_pil = img_pil.resize((self.width, self.height), Image.ANTIALIAS)
         img = ImageTk.PhotoImage(img_pil)
+
         self.current_cover = tkinter.Label(master=self.root, image=img, height=self.height, width=self.width)
         self.current_cover.image = img
         self.current_cover.place(x=0, y=0)
         self.current_cover.grid(row=0, column=0)
+
+    def get_playlist_titles(self):
+        titles = []
+        for playlist in self.sp.current_user_playlists()["items"]:
+            titles.append(playlist["name"])
+
+        return titles
 
     def decrement_index(self):
         self.index_val -= 1
@@ -87,6 +109,12 @@ class Gui:
         self.playlist_string_text.delete(1.0, "end")
         self.playlist_string_text.insert(1.0, string)
         self.get_current_playlist_cover()
+
+    def change_to_playlist(self, *args):
+        playlist = self.playlist_selection_name.get()
+        playlists = self.get_playlist_titles()
+        self.index_val = playlists.index(playlist)
+        self.on_playlist_change()
 
     def get_image(self):
         self.cover.get_image(self.index_val)
