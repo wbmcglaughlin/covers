@@ -39,7 +39,7 @@ class Cover:
 
         # Iterate through playlists
         for idx, item in tqdm(iterable=enumerate(self.playlists)):
-            array.append(self.generate_image(idx, low_color, high_color))
+            array.append(self.generate_image(idx))
 
         self.images = array
 
