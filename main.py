@@ -4,15 +4,22 @@ import spotipy
 from spotipy.oauth2 import SpotifyOAuth
 import logging
 from gui import Gui
+from configurations import init_configurations, get_persistent_data_path
 
 # Contains information for auth
 import secret
 
 if __name__ == "__main__":
-    if os.path.exists("./Covers"):
-        for pth in os.listdir("./Covers"):
+    persistent_data_path = get_persistent_data_path()
+
+    if os.path.exists(persistent_data_path + "/Covers"):
+        for pth in os.listdir(persistent_data_path + "/Covers"):
             if pth[-3:] == "png":
-                os.remove("./Covers/" + pth)
+                os.remove(persistent_data_path + "/Covers" + "/" + pth)
+    else:
+        os.mkdir(persistent_data_path + "/Covers")
+
+    init_configurations()
 
     # Set scope
     scope = "user-library-read playlist-modify-public ugc-image-upload"
