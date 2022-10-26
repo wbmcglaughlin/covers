@@ -8,14 +8,13 @@ from PIL import ImageTk
 from PIL import Image
 from cover import Cover
 import base64
-
-COVER_FILE_PATH = "./Covers"
-
+from configurations import get_persistent_data_path
 
 class Gui:
     def __init__(self, sp: spotipy.Spotify, width: int, height: int):
-        if not os.path.exists(COVER_FILE_PATH):
-            os.mkdir(COVER_FILE_PATH)
+        self.config_path = get_persistent_data_path() + "./Covers"
+        if not os.path.exists(self.config_path):
+            os.mkdir(self.config_path)
 
         self.root = Tk()
         self.sp = sp
@@ -71,12 +70,12 @@ class Gui:
         self.root.mainloop()
 
     def get_current_playlist_cover(self):
-        if not os.path.exists(f'{COVER_FILE_PATH}/cover_{self.index_val}.png'):
+        if not os.path.exists(f'{self.config_path}/cover_{self.index_val}.png'):
             spotify_cover_image = self.sp.playlist_cover_image(
                 self.sp.current_user_playlists()["items"][self.index_val]["id"])[0]['url']
-            urllib.request.urlretrieve(spotify_cover_image, f'{COVER_FILE_PATH}/cover_{self.index_val}.png')
+            urllib.request.urlretrieve(spotify_cover_image, f'{self.config_path}/cover_{self.index_val}.png')
 
-        img_pil = Image.open(f'{COVER_FILE_PATH}/cover_{self.index_val}.png')
+        img_pil = Image.open(f'{self.config_path}/cover_{self.index_val}.png')
         img_pil = img_pil.resize((self.width, self.height), Image.ANTIALIAS)
         img = ImageTk.PhotoImage(img_pil)
 
