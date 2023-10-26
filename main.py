@@ -12,12 +12,12 @@ import secret
 if __name__ == "__main__":
     persistent_data_path = get_persistent_data_path()
 
-    if os.path.exists(persistent_data_path + "/Covers"):
-        for pth in os.listdir(persistent_data_path + "/Covers"):
+    if os.path.exists(persistent_data_path / "Covers"):
+        for pth in os.listdir(persistent_data_path / "Covers"):
             if pth[-3:] == "png":
-                os.remove(persistent_data_path + "/Covers" + "/" + pth)
+                os.remove(persistent_data_path / "Covers" / pth)
     else:
-        os.mkdir(persistent_data_path + "/Covers")
+        os.mkdir(persistent_data_path / "Covers")
 
     init_configurations()
 

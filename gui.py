@@ -2,6 +2,7 @@ import os.path
 import tkinter
 from tkinter import *
 
+import pathlib
 import spotipy
 import urllib.request
 from PIL import ImageTk
@@ -12,7 +13,7 @@ from configurations import get_persistent_data_path
 
 class Gui:
     def __init__(self, sp: spotipy.Spotify, width: int, height: int):
-        self.config_path = get_persistent_data_path() + "./Covers"
+        self.config_path = get_persistent_data_path() / "Covers"
         if not os.path.exists(self.config_path):
             os.mkdir(self.config_path)
 
@@ -75,10 +76,16 @@ class Gui:
                 self.sp.current_user_playlists()["items"][self.index_val]["id"])[0]['url']
             urllib.request.urlretrieve(spotify_cover_image, f'{self.config_path}/cover_{self.index_val}.png')
 
-        img_pil = Image.open(f'{self.config_path}/cover_{self.index_val}.png')
-        img_pil = img_pil.resize((self.width, self.height), Image.ANTIALIAS)
-        img = ImageTk.PhotoImage(img_pil)
-
+        try:
+            image_path = pathlib.Path(f'{self.config_path}/cover_{self.index_val}.png')
+            print(image_path)
+            img_pil = Image.open(image_path)
+            img_pil = img_pil.resize((self.width, self.height), Image.BICUBIC)
+            img = ImageTk.PhotoImage(img_pil)
+        except Exception as e:
+            print(e)
+            exit()
+            
         self.current_cover = tkinter.Label(master=self.root, image=img, height=self.height, width=self.width)
         self.current_cover.image = img
         self.current_cover.place(x=0, y=0)
