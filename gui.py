@@ -129,7 +129,7 @@ class Gui:
         buff = self.cover.generate_image(self.playlist_string_text.get(1.0, "end"), self.index_val)
 
         img_pil = Image.open(buff)
-        img_pil = img_pil.resize((self.width, self.height), Image.ANTIALIAS)
+        img_pil = img_pil.resize((self.width, self.height), Image.NEAREST)
         img = ImageTk.PhotoImage(img_pil)
 
         self.current_cover = tkinter.Label(image=img)
