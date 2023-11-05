@@ -2,6 +2,12 @@ from math import floor
 
 
 def get_rainbow_array(length: int, low: int, high: int):
+    """
+    :param length:
+    :param low:
+    :param high:
+    """
+    
     cycle = [[high, low, low],
              [high, high, low],
              [low, high, low],
