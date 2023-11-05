@@ -7,8 +7,8 @@ from PIL import ImageTk
 from PIL import Image
 import spotipy
 
-from configurations import get_persistent_data_path
-from cover import Cover
+from src.configurations import get_persistent_data_path
+from src.cover import Cover
 
 class Gui:
     def __init__(self, sp: spotipy.Spotify, width: int, height: int):
