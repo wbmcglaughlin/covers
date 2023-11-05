@@ -1,7 +1,7 @@
 import spotipy
 from PIL import Image, ImageDraw, ImageFont
 import base64
-import constant
+import src.constant
 from io import BytesIO
 from tqdm import tqdm
 
