@@ -4,10 +4,10 @@ import pathlib
 import urllib.request
 import tkinter as tk
 from tkinter import filedialog
+from io import BytesIO
 from PIL import ImageTk
 from PIL import Image, ImageDraw, ImageFont
 import spotipy
-from io import BytesIO
 
 from src.configurations import get_persistent_data_path
 from src.cover import Cover
@@ -149,6 +149,9 @@ class Gui:
         self.on_playlist_change()
 
     def rotate(self):
+        """
+        Rotate the current image by 90 degrees.
+        """
         rotated_image = self.generated_cover_img.rotate(90) 
         self.apply_image(rotated_image)
         
@@ -183,6 +186,9 @@ class Gui:
         self.apply_image(img_pil)
         
     def apply_image(self, image):
+        """
+        Apply a new image to the class attributes.
+        """
         img_pil = self.crop_image_to_square(image)
         img_pil = img_pil.resize((self.width, self.height), Image.NEAREST)
         img = ImageTk.PhotoImage(img_pil)
@@ -201,6 +207,9 @@ class Gui:
         self.generated_cover_bytes = img_bytes
 
     def add_title(self):
+        """
+        Add a title to the image.
+        """
         font_small = ImageFont.truetype(font_path, 44)
         draw = ImageDraw.Draw(self.generated_cover_img)
         
@@ -211,6 +220,9 @@ class Gui:
         self.apply_image(self.generated_cover_img)
         
     def crop_image_to_square(self, image):
+        """
+        Center crop image to a square.
+        """
         width, height = image.size
         min_dim = min(width, height)
         left = (width - min_dim) / 2
@@ -221,6 +233,9 @@ class Gui:
         return image.crop((left, top, right, bottom))
     
     def apply_generated_cover(self):
+        """
+        Apply generated cover to spotify by encoding to bytes.
+        """
         if self.generated_cover_bytes is not None:
             encoded = base64.b64encode(self.generated_cover_bytes)
             self.sp.playlist_upload_cover_image(
