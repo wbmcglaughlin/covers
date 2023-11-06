@@ -2,11 +2,11 @@ import os.path
 import logging
 import spotipy
 from spotipy.oauth2 import SpotifyOAuth
-from gui import Gui
-from configurations import init_configurations, get_persistent_data_path
+from src.gui import Gui
+from src.configurations import init_configurations, get_persistent_data_path
 
 # Contains information for auth
-import secret
+import src.secret as secret
 
 if __name__ == "__main__":
     persistent_data_path = get_persistent_data_path()
