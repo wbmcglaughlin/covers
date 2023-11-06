@@ -4,7 +4,7 @@ import base64
 import src.constant
 from io import BytesIO
 from tqdm import tqdm
-
+import src.constant as constant
 
 class Cover:
     def __init__(self, sp: spotipy.Spotify):
