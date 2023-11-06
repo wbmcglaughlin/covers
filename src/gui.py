@@ -5,11 +5,13 @@ import urllib.request
 import tkinter as tk
 from tkinter import filedialog
 from PIL import ImageTk
-from PIL import Image
+from PIL import Image, ImageDraw, ImageFont
 import spotipy
+from io import BytesIO
 
 from src.configurations import get_persistent_data_path
 from src.cover import Cover
+from src.constant import font_path
 
 class Gui:
     """
@@ -31,7 +33,8 @@ class Gui:
 
         self.width = width
         self.height = height
-        self.generated_cover = None
+        self.generated_cover_img = None
+        self.generated_cover_bytes = None
         self.canvas = tk.Frame(self.root)
 
         self.current_cover = None
@@ -51,7 +54,7 @@ class Gui:
         playlist_choice_string_text.grid(row=0, column=0)
         self.dropdown = tk.OptionMenu(self.input_canvas, self.playlist_selection_name, *options)
         self.dropdown.grid(row=1)
-
+        
         self.index_val = 0
         self.index = tk.StringVar()
 
@@ -71,14 +74,20 @@ class Gui:
         button = tk.Button(master=self.canvas, text="Generate Cover", command=self.generate_image)
         button.grid(row=0, column=2)
 
+        border_button = tk.Button(master=self.canvas, text="Add Border", command=self.add_title)
+        border_button.grid(row=0, column=5)
+        
         button = tk.Button(master=self.canvas, text="Apply Cover Art", command=self.apply_generated_cover)
         button.grid(row=0, column=3)
-
+        
         right_button = tk.Button(master=self.canvas, text=">>", command=self.increment_index)
-        right_button.grid(row=0, column=4)
+        right_button.grid(row=0, column=6)
+        
+        right_button = tk.Button(master=self.canvas, text="r", command=self.rotate)
+        right_button.grid(row=0, column=7)
 
         text = tk.Label(self.root, textvariable=self.index)
-        text.grid(row=0, column=5)
+        text.grid(row=0, column=8)
 
         self.canvas.grid(row=1, column=1)
         self.root.mainloop()
@@ -139,12 +148,16 @@ class Gui:
         self.index_val += 1
         self.on_playlist_change()
 
+    def rotate(self):
+        rotated_image = self.generated_cover_img.rotate(90) 
+        self.apply_image(rotated_image)
+        
     def on_playlist_change(self):
         """
         Run on playlist change.
         """
         self.index.set(str(self.index_val))
-        self.generated_cover = None
+        self.generated_cover_bytes = None
 
         string = self.cover.get_string(self.index_val)
         self.playlist_string_text.delete(1.0, "end")
@@ -170,18 +183,46 @@ class Gui:
         self.apply_image(img_pil)
         
     def apply_image(self, image):
-        img_pil = image.resize((self.width, self.height), Image.NEAREST)
+        img_pil = self.crop_image_to_square(image)
+        img_pil = img_pil.resize((self.width, self.height), Image.NEAREST)
         img = ImageTk.PhotoImage(img_pil)
 
         self.current_cover = tk.Label(image=img)
         self.current_cover.image = img
         self.current_cover.place(x=0, y=0)
         self.current_cover.grid(row=0, column=0)
-        self.generated_cover = image
+        
+        buffer = BytesIO()
+        img_pil.save(buffer, format="JPEG")
+        img_bytes = buffer.getvalue()
+        buffer.close()
+        
+        self.generated_cover_img = img_pil
+        self.generated_cover_bytes = img_bytes
 
+    def add_title(self):
+        font_small = ImageFont.truetype(font_path, 44)
+        draw = ImageDraw.Draw(self.generated_cover_img)
+        
+        title = self.sp.current_user_playlists()["items"][self.index_val]["name"]
+        
+        draw.text((8, -4), title, fill=(120, 120, 120), font=font_small)
+        draw.text((10, -2), title, fill=(255, 255, 255), font=font_small)
+        self.apply_image(self.generated_cover_img)
+        
+    def crop_image_to_square(self, image):
+        width, height = image.size
+        min_dim = min(width, height)
+        left = (width - min_dim) / 2
+        top = (height - min_dim) / 2
+        right = (width + min_dim) / 2
+        bottom = (height + min_dim) / 2
+        
+        return image.crop((left, top, right, bottom))
+    
     def apply_generated_cover(self):
-        if self.generated_cover is not None:
-            encoded = base64.b64encode(self.generated_cover.getvalue())
+        if self.generated_cover_bytes is not None:
+            encoded = base64.b64encode(self.generated_cover_bytes)
             self.sp.playlist_upload_cover_image(
                 self.sp.current_user_playlists()["items"][self.index_val]["id"],
                 encoded
