@@ -2,7 +2,7 @@ import os
 import appdirs
 import pathlib
 import configparser
-from constant import app_author, app_name
+from src.constant import app_author, app_name
 
 
 def get_persistent_data_path():
