@@ -24,11 +24,11 @@ jobs:
 
       - name: Run Pyinstaller
         run: |
-         python -m PyInstaller main.spec
+         python -m PyInstaller playlists.spec
       - uses: actions/upload-artifact@v2
         with:
           name: finance
-          path: dist/main/finance
+          path: dist/playlists
       
       - name: Create Release
         id: create_release
@@ -48,6 +48,6 @@ jobs:
           GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
         with:
           upload_url: ${{steps.create_release.outputs.upload_url}}
-          asset_path: dist/main/finance
-          asset_name: finance
+          asset_path: dist/playlists
+          asset_name: playlists.app
           asset_content_type: application/zip
