@@ -1,0 +1,53 @@
+name: Build Finance Application (MACOS)
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  build-mac:
+    runs-on: macOS-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.9
+
+      - name: Install Dependencies
+        run: |
+          pip install -r requirements.txt
+
+      - name: Run Pyinstaller
+        run: |
+         python -m PyInstaller playlists.spec
+      - uses: actions/upload-artifact@v2
+        with:
+          name: finance
+          path: dist/playlists
+      
+      - name: Create Release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
+        with:
+          tag_name: "v0.0.1"
+          release_name: "v0.0.1"
+          draft: false
+          prerelease: false
+      
+      - name: Upload Release Asset
+        id: upload-release-asset
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
+        with:
+          upload_url: ${{steps.create_release.outputs.upload_url}}
+          asset_path: dist/playlists
+          asset_name: playlists.app
+          asset_content_type: application/zip
