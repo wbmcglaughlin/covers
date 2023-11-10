@@ -24,7 +24,7 @@ jobs:
 
       - name: Run Pyinstaller
         run: |
-         python -m PyInstaller playlists.spec
+         python3 -m PyInstaller playlists.spec
       - uses: actions/upload-artifact@v2
         with:
           name: finance
