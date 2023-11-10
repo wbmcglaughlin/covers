@@ -1,15 +1,16 @@
 import spotipy
-from PIL import Image, ImageDraw, ImageFont
+from PIL import ImageDraw, ImageFont
 import base64
-import src.constant
 from io import BytesIO
 from tqdm import tqdm
 import src.constant as constant
+from src.data import get_playlist_items
+
 
 class Cover:
     def __init__(self, sp: spotipy.Spotify):
         self.sp = sp
-        self.playlists = self.sp.current_user_playlists()["items"]
+        self.playlists = get_playlist_items(self.sp)
         self.playlists_count = len(self.playlists)
         self.images = None
         self.pad = 500
@@ -26,15 +27,16 @@ class Cover:
         font_large = ImageFont.truetype(constant.font_path, 48)
         font_small = ImageFont.truetype(constant.font_path, 24)
 
-        draw.text((20, 0), self.playlists[idx]["name"], (255, 255, 255), font=font_large)
+        draw.text((20, 0), self.playlists[idx]
+                  ["name"], (255, 255, 255), font=font_large)
         draw.text(
-            (20, font_large.size + self.pad), 
+            (20, font_large.size + self.pad),
             f"Playlist: {idx + 1}/{self.playlists_count}", (255, 255, 255),
             font=font_small
         )
         draw.text(
             (20, font_large.size + font_small.size + self.pad),
-            f"Tracks: {self.playlists[idx]['tracks']['total']}", 
+            f"Tracks: {self.playlists[idx]['tracks']['total']}",
             font=font_small
         )
 
@@ -45,12 +47,13 @@ class Cover:
 
     def set_image(self):
         """
-        
+
         """
         array = self.images
         for idx, arr_el in tqdm(enumerate(array)):
             encoded = base64.b64encode(arr_el.getvalue())
-            self.sp.playlist_upload_cover_image(self.playlists[idx]["id"], encoded)
+            self.sp.playlist_upload_cover_image(
+                self.playlists[idx]["id"], encoded)
 
     def get_image(self, idx: int):
         if self.images is None:
@@ -68,7 +71,10 @@ class Cover:
         """
         :param idx:
         """
-        playlist_items = self.sp.playlist_items(self.playlists[idx]['id'])['items']
+        playlist_items = self.sp.playlist_items(
+            get_playlist_items(self.sp)[idx]['id']
+        )['items']
+
         artists = []
         track_names = []
         for track in playlist_items:
@@ -76,7 +82,8 @@ class Cover:
             track_names.append(track['track']['name'])
 
         string = ""
-        string += str(max(set(artists), key=artists.count)) + " " + self.playlists[idx]["name"]
+        string += str(max(set(artists), key=artists.count)) + \
+            " " + self.playlists[idx]["name"]
         print(string)
 
         return string

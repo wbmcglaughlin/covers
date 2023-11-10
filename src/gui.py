@@ -9,6 +9,7 @@ from PIL import ImageTk
 from PIL import Image, ImageDraw, ImageFont
 import spotipy
 
+from src.data import get_playlist_titles, get_playlist_items
 from src.configurations import get_persistent_data_path
 from src.cover import Cover
 from src.constant import font_path
@@ -49,7 +50,7 @@ class Gui:
         self.playlist_string_text = tk.Text(master=self.input_canvas)
         self.playlist_string_text.grid(row=3)
 
-        options = self.get_playlist_titles()
+        options = get_playlist_titles(self.sp)
         self.playlist_selection_name = tk.StringVar(self.input_canvas)
         self.playlist_selection_name.set(options[0])  # default value
         self.playlist_selection_name.trace_variable(
@@ -72,32 +73,53 @@ class Gui:
 
         # Menu Button Selection Options
         left_button = tk.Button(
-            master=self.canvas, text="<<", command=self.decrement_index)
+            master=self.canvas,
+            text="<<",
+            command=self.decrement_index
+        )
         left_button.grid(row=0, column=0)
 
         import_phtoto_button = tk.Button(
-            master=self.canvas, text="Import Photo", command=self.open_image_selector)
+            master=self.canvas,
+            text="Import Photo",
+            command=self.open_image_selector
+        )
         import_phtoto_button.grid(row=0, column=1)
 
-        button = tk.Button(master=self.canvas,
-                           text="Generate Cover", command=self.generate_image)
+        button = tk.Button(
+            master=self.canvas,
+            text="Generate Cover",
+            command=self.generate_image
+        )
         button.grid(row=0, column=2)
 
         border_button = tk.Button(
-            master=self.canvas, text="Add Border", command=self.add_title)
+            master=self.canvas,
+            text="Add Border",
+            command=self.add_title
+        )
         border_button.grid(row=0, column=5)
 
         button = tk.Button(
-            master=self.canvas, text="Apply Cover Art", command=self.apply_generated_cover)
+            master=self.canvas,
+            text="Apply Cover Art",
+            command=self.apply_generated_cover
+        )
         button.grid(row=0, column=3)
 
         right_button = tk.Button(
-            master=self.canvas, text=">>", command=self.increment_index)
+            master=self.canvas,
+            text=">>",
+            command=self.increment_index
+        )
         right_button.grid(row=0, column=6)
 
-        right_button = tk.Button(
-            master=self.canvas, text="r", command=self.rotate)
-        right_button.grid(row=0, column=7)
+        rotate_button = tk.Button(
+            master=self.canvas,
+            text="r",
+            command=self.rotate
+        )
+        rotate_button.grid(row=0, column=7)
 
         text = tk.Label(self.root, textvariable=self.index)
         text.grid(row=0, column=8)
@@ -120,7 +142,7 @@ class Gui:
         """
         if not os.path.exists(f'{self.config_path}/cover_{self.index_val}.png'):
             spotify_cover_image = self.sp.playlist_cover_image(
-                self.sp.current_user_playlists()["items"][self.index_val]["id"])[0]['url']
+                get_playlist_items(self.sp)[self.index_val]["id"])[0]['url']
             urllib.request.urlretrieve(
                 spotify_cover_image, f'{self.config_path}/cover_{self.index_val}.png')
 
@@ -140,16 +162,6 @@ class Gui:
         self.current_cover.image = img
         self.current_cover.place(x=0, y=0)
         self.current_cover.grid(row=0, column=0)
-
-    def get_playlist_titles(self):
-        """
-        Get list of playlist titles.
-        """
-        titles = []
-        for playlist in self.sp.current_user_playlists()["items"]:
-            titles.append(playlist["name"])
-
-        return titles
 
     def decrement_index(self):
         """
@@ -190,7 +202,7 @@ class Gui:
         Change to selected playlist.
         """
         playlist = self.playlist_selection_name.get()
-        playlists = self.get_playlist_titles()
+        playlists = get_playlist_titles(self.sp)
         self.index_val = playlists.index(playlist)
         self.on_playlist_change()
 
