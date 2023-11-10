@@ -244,8 +244,7 @@ class Gui:
         font_small = ImageFont.truetype(font_path, 44)
         draw = ImageDraw.Draw(self.generated_cover_img)
 
-        title = self.sp.current_user_playlists(
-        )["items"][self.index_val]["name"]
+        title = get_playlist_items(self.sp)[self.index_val]["name"]
 
         draw.text((8, -4), title, fill=(120, 120, 120), font=font_small)
         draw.text((10, -2), title, fill=(255, 255, 255), font=font_small)
