@@ -1,9 +1,9 @@
-name: Build Finance Application (MACOS)
+name: Build Playlists Application (MACOS)
 
 on:
   push:
     branches:
-      - main
+      - master
   workflow_dispatch:
 
 jobs:
