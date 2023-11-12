@@ -141,27 +141,11 @@ class Gui:
             image_path = pathlib.Path(
                 f'{self.config_path}/cover_{self.index_val}.png')
             print(image_path)
-            img_pil = Image.open(image_path)
-            img_pil = img_pil.resize((self.width, self.height), Image.BICUBIC)
-            img = ImageTk.PhotoImage(img_pil)
         except Exception as e:
             print(e)
             exit()
 
-        self.current_cover = tk.Label(
-            master=self.root, image=img, height=self.height, width=self.width
-        )
-        self.current_cover.image = img
-        self.current_cover.place(x=0, y=0)
-        self.current_cover.grid(row=0, column=0)
-
-        buffer = BytesIO()
-        img_pil.save(buffer, format="JPEG")
-        img_bytes = buffer.getvalue()
-        buffer.close()
-
-        self.generated_cover_img = img_pil
-        self.generated_cover_bytes = img_bytes
+        self.apply_image(image=image_path)
 
     def decrement_index(self):
         """
@@ -214,7 +198,13 @@ class Gui:
         img_pil = img_pil.resize((self.width, self.height), Image.NEAREST)
         img = ImageTk.PhotoImage(img_pil)
 
-        self.current_cover = tk.Label(image=img)
+        if self.current_cover is None:
+            self.current_cover = tk.Label(
+                master=self.root, image=img, height=self.height, width=self.width
+            )
+        else:
+            self.current_cover = tk.Label(image=img)
+
         self.current_cover.image = img
         self.current_cover.place(x=0, y=0)
         self.current_cover.grid(row=0, column=0)
