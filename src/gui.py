@@ -149,10 +149,19 @@ class Gui:
             exit()
 
         self.current_cover = tk.Label(
-            master=self.root, image=img, height=self.height, width=self.width)
+            master=self.root, image=img, height=self.height, width=self.width
+        )
         self.current_cover.image = img
         self.current_cover.place(x=0, y=0)
         self.current_cover.grid(row=0, column=0)
+
+        buffer = BytesIO()
+        img_pil.save(buffer, format="JPEG")
+        img_bytes = buffer.getvalue()
+        buffer.close()
+
+        self.generated_cover_img = img_pil
+        self.generated_cover_bytes = img_bytes
 
     def decrement_index(self):
         """
@@ -251,8 +260,7 @@ class Gui:
         if self.generated_cover_bytes is not None:
             encoded = base64.b64encode(self.generated_cover_bytes)
             self.sp.playlist_upload_cover_image(
-                self.sp.current_user_playlists(
-                )["items"][self.index_val]["id"],
+                get_playlist_items(self.sp)[self.index_val]["id"],
                 encoded
             )
 
