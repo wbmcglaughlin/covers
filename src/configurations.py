@@ -1,21 +1,29 @@
 import os
-import appdirs
 import pathlib
 import configparser
+import appdirs
+
 from src.constant import app_author, app_name
 
 
 def get_persistent_data_path():
-    path = pathlib.Path(appdirs.user_data_dir(appauthor=app_author, appname=app_name))
+    """Get persistent data path using app author and app name.
+
+    :return pathlib.Path: persistent data path.
+    """
+    path = pathlib.Path(appdirs.user_data_dir(
+        appauthor=app_author, appname=app_name))
     if not os.path.exists(path):
         os.mkdir(path)
 
     return path
 
+
 def make_configurations_folder():
     config_folder_path = get_configurations_folder()
     if not os.path.exists(config_folder_path):
         os.mkdir(config_folder_path)
+
 
 def get_configurations_folder():
     return get_persistent_data_path() / 'configurations'
@@ -47,5 +55,5 @@ def init_configurations():
     if 'UserConfigurations' not in config:
         config['UserConfigurations'] = {}
 
-    with open(get_configurations_file(), 'w') as configfile:
+    with open(get_configurations_file(), 'w', encoding="UTF-8") as configfile:
         config.write(configfile)
