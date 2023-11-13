@@ -4,3 +4,4 @@ __pycache__
 *.ipynb
 build
 dist
+src/secret.py
