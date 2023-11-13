@@ -52,5 +52,7 @@ def init_configurations():
     if 'UserConfigurations' not in config:
         config['UserConfigurations'] = {}
 
-    with open(config_file, 'w', encoding="UTF-8") as configfile:
-        config.write(configfile)
+        with open(config_file, 'w', encoding="UTF-8") as configfile:
+            config.write(configfile)
+
+    return config
