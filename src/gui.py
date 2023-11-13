@@ -11,7 +11,6 @@ import spotipy
 
 from src.data import get_playlist_titles, get_playlist_items
 from src.configurations import get_persistent_data_path
-from src.cover import Cover
 from src.constant import font_path
 
 
@@ -32,7 +31,6 @@ class Gui:
 
         self.root = tk.Tk()
         self.sp = sp
-        self.cover = Cover(sp)
 
         self.width = width
         self.height = height
@@ -85,13 +83,6 @@ class Gui:
             command=self.open_image_selector
         )
         import_phtoto_button.grid(row=0, column=1)
-
-        button = tk.Button(
-            master=self.canvas,
-            text="Generate Cover",
-            command=self.generate_image
-        )
-        button.grid(row=0, column=2)
 
         border_button = tk.Button(
             master=self.canvas,
@@ -150,18 +141,11 @@ class Gui:
             image_path = pathlib.Path(
                 f'{self.config_path}/cover_{self.index_val}.png')
             print(image_path)
-            img_pil = Image.open(image_path)
-            img_pil = img_pil.resize((self.width, self.height), Image.BICUBIC)
-            img = ImageTk.PhotoImage(img_pil)
         except Exception as e:
             print(e)
             exit()
 
-        self.current_cover = tk.Label(
-            master=self.root, image=img, height=self.height, width=self.width)
-        self.current_cover.image = img
-        self.current_cover.place(x=0, y=0)
-        self.current_cover.grid(row=0, column=0)
+        self.apply_image(image=image_path)
 
     def decrement_index(self):
         """
@@ -192,7 +176,7 @@ class Gui:
         self.index.set(str(self.index_val))
         self.generated_cover_bytes = None
 
-        string = self.cover.get_string(self.index_val)
+        string = self.get_string(self.index_val)
         self.playlist_string_text.delete(1.0, "end")
         self.playlist_string_text.insert(1.0, string)
         self.get_current_playlist_cover()
@@ -206,16 +190,6 @@ class Gui:
         self.index_val = playlists.index(playlist)
         self.on_playlist_change()
 
-    def get_image(self):
-        self.cover.get_image(self.index_val)
-
-    def generate_image(self):
-        buff = self.cover.generate_image(
-            self.playlist_string_text.get(1.0, "end"), self.index_val)
-        img_pil = Image.open(buff)
-
-        self.apply_image(img_pil)
-
     def apply_image(self, image):
         """
         Apply a new image to the class attributes.
@@ -224,7 +198,13 @@ class Gui:
         img_pil = img_pil.resize((self.width, self.height), Image.NEAREST)
         img = ImageTk.PhotoImage(img_pil)
 
-        self.current_cover = tk.Label(image=img)
+        if self.current_cover is None:
+            self.current_cover = tk.Label(
+                master=self.root, image=img, height=self.height, width=self.width
+            )
+        else:
+            self.current_cover = tk.Label(image=img)
+
         self.current_cover.image = img
         self.current_cover.place(x=0, y=0)
         self.current_cover.grid(row=0, column=0)
@@ -270,7 +250,27 @@ class Gui:
         if self.generated_cover_bytes is not None:
             encoded = base64.b64encode(self.generated_cover_bytes)
             self.sp.playlist_upload_cover_image(
-                self.sp.current_user_playlists(
-                )["items"][self.index_val]["id"],
+                get_playlist_items(self.sp)[self.index_val]["id"],
                 encoded
             )
+
+    def get_string(self, idx: int):
+        """
+        :param idx:
+        """
+        playlist_items = self.sp.playlist_items(
+            get_playlist_items(self.sp)[idx]['id']
+        )['items']
+
+        artists = []
+        track_names = []
+        for track in playlist_items:
+            artists.append(track['track']['artists'][0]['name'])
+            track_names.append(track['track']['name'])
+
+        string = ""
+        string += str(max(set(artists), key=artists.count)) + \
+            " " + get_playlist_titles(self.sp)[idx]
+        print(string)
+
+        return string

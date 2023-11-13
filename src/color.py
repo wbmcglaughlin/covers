@@ -7,7 +7,7 @@ def get_rainbow_array(length: int, low: int, high: int):
     :param low:
     :param high:
     """
-    
+
     cycle = [[high, low, low],
              [high, high, low],
              [low, high, low],
@@ -24,7 +24,8 @@ def get_rainbow_array(length: int, low: int, high: int):
 
         arr = []
         for j in range(len(cycle[cycle_start])):
-            arr.append(int(cycle[cycle_start][j] + error * (cycle[cycle_start + 1][j] - cycle[cycle_start][j])))
+            arr.append(int(cycle[cycle_start][j] + error *
+                       (cycle[cycle_start + 1][j] - cycle[cycle_start][j])))
 
         array.append(arr)
 
