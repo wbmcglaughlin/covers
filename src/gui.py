@@ -145,7 +145,7 @@ class Gui:
             print(e)
             exit()
 
-        self.apply_image(image=image_path)
+        self.apply_image(image=Image.open(image_path))
 
     def decrement_index(self):
         """
